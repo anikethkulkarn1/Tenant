@@ -136,9 +136,6 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           </SheetContent>
         </Sheet>
         <div className="flex w-full items-center justify-end gap-4 md:ml-auto md:gap-2 lg:gap-4">
-           <h1 className="text-lg font-semibold md:text-xl hidden md:block">
-              {allMenuItems.find(item => pathname.startsWith(item.href))?.label || 'Dashboard'}
-           </h1>
            <div className="ml-auto">
              <UserNav />
            </div>

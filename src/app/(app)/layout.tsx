@@ -9,6 +9,7 @@ import {
   LayoutDashboard,
   Settings,
   Users,
+  ChevronDown,
 } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { UserNav } from '@/components/user-nav';
@@ -16,15 +17,26 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { PanelLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
-const menuItems = [
+const mainMenuItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/team', label: 'Team', icon: Users },
   { href: '/billing', label: 'Billing', icon: CreditCard },
+];
+
+const otherMenuItems = [
   { href: '/audit-log', label: 'Audit Log', icon: FileClock, pro: true },
   { href: '/rate-limiter', label: 'AI Rate Limiter', icon: Bot, enterprise: true },
   { href: '/settings', label: 'Settings', icon: Settings },
 ];
+
+const allMenuItems = [...mainMenuItems, ...otherMenuItems];
 
 function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
   const pathname = usePathname();
@@ -44,6 +56,35 @@ function NavLink({ href, children }: { href: string; children: React.ReactNode }
   );
 }
 
+function OthersDropdown() {
+    const pathname = usePathname();
+    const isOtherActive = otherMenuItems.some(item => pathname.startsWith(item.href));
+    
+    return (
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className={cn(
+                    "flex items-center gap-1 text-sm font-medium text-muted-foreground transition-all hover:text-primary px-3 py-2",
+                    isOtherActive && "text-primary"
+                )}>
+                    Others
+                    <ChevronDown className="h-4 w-4" />
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+                {otherMenuItems.map((item) => (
+                    <DropdownMenuItem key={item.href} asChild>
+                         <Link href={item.href} className="flex items-center gap-2">
+                            <item.icon className="h-4 w-4 text-muted-foreground" />
+                            <span>{item.label}</span>
+                         </Link>
+                    </DropdownMenuItem>
+                ))}
+            </DropdownMenuContent>
+        </DropdownMenu>
+    )
+}
+
 export default function AppLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
 
@@ -58,11 +99,12 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             <Logo />
             <span className="sr-only">TenantFlow</span>
           </Link>
-          {menuItems.map((item) => (
+          {mainMenuItems.map((item) => (
             <NavLink key={item.href} href={item.href}>
               {item.label}
             </NavLink>
           ))}
+          <OthersDropdown />
         </nav>
         <Sheet>
           <SheetTrigger asChild>
@@ -84,7 +126,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                 <Logo />
                 <span className="sr-only">TenantFlow</span>
               </Link>
-              {menuItems.map((item) => (
+              {allMenuItems.map((item) => (
                 <NavLink key={item.href} href={item.href}>
                   <item.icon className="h-5 w-5" />
                   {item.label}
@@ -95,7 +137,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
         </Sheet>
         <div className="flex w-full items-center justify-end gap-4 md:ml-auto md:gap-2 lg:gap-4">
            <h1 className="text-lg font-semibold md:text-xl hidden md:block">
-              {menuItems.find(item => pathname.startsWith(item.href))?.label || 'Dashboard'}
+              {allMenuItems.find(item => pathname.startsWith(item.href))?.label || 'Dashboard'}
            </h1>
            <div className="ml-auto">
              <UserNav />
